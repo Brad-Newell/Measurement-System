@@ -1,0 +1,544 @@
+classdef Measurementsystem2 < matlab.apps.AppBase
+
+    % Properties that correspond to app components
+    properties (Access = public)
+        UIFigure                        matlab.ui.Figure
+        DirisA40EnergyMeteringMeasurmentSystemLabel  matlab.ui.control.Label
+        BradleyNewellLabel              matlab.ui.control.Label
+        SystemValuesPanel               matlab.ui.container.Panel
+        L1CurrentALabel                 matlab.ui.control.Label
+        L1CurrentAEditField             matlab.ui.control.NumericEditField
+        L2CurrentAEditFieldLabel        matlab.ui.control.Label
+        L2CurrentAEditField             matlab.ui.control.NumericEditField
+        L3CurrentAEditFieldLabel        matlab.ui.control.Label
+        L3CurrentAEditField             matlab.ui.control.NumericEditField
+        PPVoltageL12VEditFieldLabel     matlab.ui.control.Label
+        PPVoltageL12VEditField          matlab.ui.control.NumericEditField
+        PPVoltageL13VEditFieldLabel     matlab.ui.control.Label
+        PPVoltageL13VEditField          matlab.ui.control.NumericEditField
+        PPVoltageL23VEditFieldLabel     matlab.ui.control.Label
+        PPVoltageL23VEditField          matlab.ui.control.NumericEditField
+        PNVoltageL2VEditFieldLabel      matlab.ui.control.Label
+        PNVoltageL2VEditField           matlab.ui.control.NumericEditField
+        PNVoltageL1VEditFieldLabel      matlab.ui.control.Label
+        PNVoltageL1VEditField           matlab.ui.control.NumericEditField
+        PNVoltageL3VEditFieldLabel      matlab.ui.control.Label
+        PNVoltageL3VEditField           matlab.ui.control.NumericEditField
+        FrequencyHzEditFieldLabel       matlab.ui.control.Label
+        FrequencyHzEditField            matlab.ui.control.NumericEditField
+        ActivePowerKwEditFieldLabel     matlab.ui.control.Label
+        ActivePowerKwEditField          matlab.ui.control.NumericEditField
+        ReactivePowerKvarEditFieldLabel  matlab.ui.control.Label
+        ReactivePowerKvarEditField      matlab.ui.control.NumericEditField
+        ApparentPowerKvAEditFieldLabel  matlab.ui.control.Label
+        ApparentPowerKvAEditField       matlab.ui.control.NumericEditField
+        PowerFactorL1EditFieldLabel     matlab.ui.control.Label
+        PowerFactorL1EditField          matlab.ui.control.NumericEditField
+        PowerFactorL2EditFieldLabel     matlab.ui.control.Label
+        PowerFactorL2EditField          matlab.ui.control.NumericEditField
+        PowerFactorL3EditFieldLabel     matlab.ui.control.Label
+        PowerFactorL3EditField          matlab.ui.control.NumericEditField
+        CurrentTHDL1EditFieldLabel      matlab.ui.control.Label
+        CurrentTHDL1EditField           matlab.ui.control.NumericEditField
+        CurrentTHDL2EditFieldLabel      matlab.ui.control.Label
+        CurrentTHDL2EditField           matlab.ui.control.NumericEditField
+        CurrentTHDL3EditFieldLabel      matlab.ui.control.Label
+        CurrentTHDL3EditField           matlab.ui.control.NumericEditField
+        VoltageTHDL1EditFieldLabel      matlab.ui.control.Label
+        VoltageTHDL1EditField           matlab.ui.control.NumericEditField
+        VoltageTHDL2EditFieldLabel      matlab.ui.control.Label
+        VoltageTHDL2EditField           matlab.ui.control.NumericEditField
+        VoltageTHDL3EditFieldLabel      matlab.ui.control.Label
+        VoltageTHDL3EditField           matlab.ui.control.NumericEditField
+        Image                           matlab.ui.control.Image
+        OperatorControlsPanel           matlab.ui.container.Panel
+        RunMeasermentButton             matlab.ui.control.Button
+        MeasurmentNameEditFieldLabel    matlab.ui.control.Label
+        MeasurmentNameEditField         matlab.ui.control.EditField
+        NumberofRecordsEditFieldLabel   matlab.ui.control.Label
+        NumberofRecordsEditField        matlab.ui.control.NumericEditField
+        MeasurmentCountEditFieldLabel   matlab.ui.control.Label
+        MeasurmentCountEditField        matlab.ui.control.NumericEditField
+        DistanceLabel                   matlab.ui.control.Label
+        distance                        matlab.ui.control.NumericEditField
+    end
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: RunMeasermentButton
+        function RunMeasermentButtonPushed(app, event)
+%% Create a Modbus Object.
+m = modbus('tcpip', '192.168.0.50');
+%Timeout for Modbus disconnection
+m.Timeout = 3;
+%Modbus Adress
+serverId = 3;
+
+%Create variable for distance to give indication of test location
+distance=app.distance.Value;
+
+%Create variables For modbus values
+L1Current = read(m, 'holdingregs', 1793, 1, serverId, 'uint16');
+L2Current = read(m, 'holdingregs', 1794, 1, serverId, 'uint16');
+L3Current = read(m, 'holdingregs', 1795, 1, serverId, 'uint16');
+P1P2 = read(m, 'holdingregs', 1797, 1, serverId, 'uint16');
+P2P3 = read(m, 'holdingregs', 1798, 1, serverId, 'uint16');
+P1P3 = read(m, 'holdingregs', 1799, 1, serverId, 'uint16');
+PNL1 = read(m, 'holdingregs', 1800, 1, serverId, 'uint16');
+PNL2 = read(m, 'holdingregs', 1801, 1, serverId, 'uint16');
+PNL3 = read(m, 'holdingregs', 1802, 1, serverId, 'uint16');
+F = read(m, 'holdingregs', 1803, 1, serverId, 'uint16');
+ActiveP = read(m, 'holdingregs', 1804, 1, serverId, 'int16');
+ReactiveP = read(m, 'holdingregs', 1805, 1, serverId, 'int16');
+ApparentP = read(m, 'holdingregs', 1806, 1, serverId, 'uint16');
+PFL1 = read(m, 'holdingregs', 1817, 1, serverId, 'int16');
+PFL2 = read(m, 'holdingregs', 1818, 1, serverId, 'int16');
+PFL3 = read(m, 'holdingregs', 1819, 1, serverId, 'int16');
+ITHDL1 = read(m, 'holdingregs', 1875, 1, serverId, 'uint16');
+ITHDL2 = read(m, 'holdingregs', 1876, 1, serverId, 'uint16');
+ITHDL3 = read(m, 'holdingregs', 1877, 1, serverId, 'uint16');
+VTHDL1 = read(m, 'holdingregs', 1881, 1, serverId, 'uint16');
+VTHDL2 = read(m, 'holdingregs', 1882, 1, serverId, 'uint16');
+VTHDL3 = read(m, 'holdingregs', 1883, 1, serverId, 'uint16');
+
+
+t = 0;
+% %Start Timer
+tic
+%y being the count variable begins at 0
+y=0;
+
+%While loop so code will take readings for the alloted count value from
+%edit field box
+while y<app.NumberofRecordsEditField.Value
+    %Start Count
+    y=y+1
+    %Idication of where the count is during test shown in edit field box
+    app.MeasurmentCountEditField.Value=y;
+    %Develop matrix for variables to obtain and save data
+    L1Current=[L1Current;read(m, 'holdingregs', 1793, 1, serverId, 'uint16')]
+    L2Current = [L2Current;read(m, 'holdingregs', 1794, 1, serverId, 'uint16')]
+    L3Current=[L3Current ; read(m, 'holdingregs', 1795, 1, serverId, 'uint16')]
+    P1P2 = [P1P2;read(m, 'holdingregs', 1797, 1, serverId, 'uint16')];
+    P2P3 = [P2P3;read(m, 'holdingregs', 1798, 1, serverId, 'uint16')];
+    P1P3 = [P1P3;read(m, 'holdingregs', 1799, 1, serverId, 'uint16')];
+    PNL1 = [PNL1;read(m, 'holdingregs', 1800, 1, serverId, 'uint16')];
+    PNL2 = [PNL2;read(m, 'holdingregs', 1801, 1, serverId, 'uint16')];
+    PNL3 = [PNL3;read(m, 'holdingregs', 1802, 1, serverId, 'uint16')];
+    F = [F;read(m, 'holdingregs', 1803, 1, serverId, 'uint16')];
+    ActiveP = [ActiveP;read(m, 'holdingregs', 1804, 1, serverId, 'int16')];
+    ReactiveP = [ReactiveP;read(m, 'holdingregs', 1805, 1, serverId, 'int16')];
+    ApparentP = [ApparentP;read(m, 'holdingregs', 1806, 1, serverId, 'uint16')];
+    PFL1 = [PFL1;read(m, 'holdingregs', 1817, 1, serverId, 'int16')]
+    PFL2 = [PFL2;read(m, 'holdingregs', 1817, 1, serverId, 'int16')];
+    PFL3 = [PFL3;read(m, 'holdingregs', 1817, 1, serverId, 'int16')];
+    ITHDL1=[ITHDL1 ;read(m, 'holdingregs', 1875, 1, serverId, 'uint16')];
+    ITHDL2 = [ITHDL2;read(m, 'holdingregs', 1876, 1, serverId, 'uint16')];
+    ITHDL3 = [ITHDL3;read(m, 'holdingregs', 1877, 1, serverId, 'uint16')];
+    VTHDL1 = [VTHDL1;read(m, 'holdingregs', 1881, 1, serverId, 'uint16')];
+    VTHDL2 = [VTHDL2;read(m, 'holdingregs', 1882, 1, serverId, 'uint16')];
+    VTHDL3 = [VTHDL3;read(m, 'holdingregs', 1883, 1, serverId, 'uint16')];
+    
+    %Create variable for time so each meausurement can be plotted against
+    t = [t,toc];
+    
+    %Show live variables in designated edit field box
+    %Alter modbus variables to correct decimal place
+    app.L1CurrentAEditField.Value=L1Current(length(L1Current))/1000;
+    app.L2CurrentAEditField.Value=L2Current(length(L2Current))/1000;
+    app.L3CurrentAEditField.Value=L3Current(length(L3Current))/1000;
+    app.PPVoltageL12VEditField.Value=P1P2(length(P1P2))/10;
+    app.PPVoltageL23VEditField.Value=P2P3(length(P2P3))/10;
+    app.PPVoltageL13VEditField.Value=P1P3(length(P1P3))/10;
+    app.PNVoltageL1VEditField.Value=PNL1(length(PNL1))/10;
+    app.PNVoltageL2VEditField.Value=PNL2(length(PNL2))/10;
+    app.PNVoltageL3VEditField.Value=PNL3(length(PNL3))/10;
+    app.FrequencyHzEditField.Value=F(length(F))/100;
+    app.ActivePowerKwEditField.Value=ActiveP(length(ActiveP));
+    app.ReactivePowerKvarEditField.Value=ReactiveP(length(ReactiveP));
+    app.ActivePowerKwEditField.Value=ApparentP(length(ApparentP));
+    app.PowerFactorL1EditField.Value=PFL1(length(PFL1))/1000;
+    app.PowerFactorL2EditField.Value=PFL2(length(PFL2))/1000;
+    app.PowerFactorL3EditField.Value=PFL3(length(PFL3))/1000;
+    app.CurrentTHDL1EditField.Value=ITHDL1(length(ITHDL1))/10;
+    app.CurrentTHDL2EditField.Value=ITHDL2(length(ITHDL2))/10;
+    app.CurrentTHDL3EditField.Value=ITHDL3(length(ITHDL3))/10;
+    app.VoltageTHDL1EditField.Value=VTHDL1(length(VTHDL1))/10;
+    app.VoltageTHDL2EditField.Value=VTHDL2(length(VTHDL2))/10;
+    app.VoltageTHDL3EditField.Value=VTHDL3(length(VTHDL3))/10;
+         
+end
+
+ %Save Data as test name from edit field box
+    save(app.MeasurmentNameEditField.Value);
+
+clear m
+        end
+    end
+
+    % Component initialization
+    methods (Access = private)
+
+        % Create UIFigure and components
+        function createComponents(app)
+
+            % Create UIFigure and hide until all components are created
+            app.UIFigure = uifigure('Visible', 'off');
+            app.UIFigure.Position = [100 100 980 407];
+            app.UIFigure.Name = 'MATLAB App';
+
+            % Create DirisA40EnergyMeteringMeasurmentSystemLabel
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel = uilabel(app.UIFigure);
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.HorizontalAlignment = 'center';
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.WordWrap = 'on';
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.FontSize = 16;
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.FontWeight = 'bold';
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.Position = [3 339 249 55];
+            app.DirisA40EnergyMeteringMeasurmentSystemLabel.Text = 'Diris A 40 Energy Metering Measurment System';
+
+            % Create BradleyNewellLabel
+            app.BradleyNewellLabel = uilabel(app.UIFigure);
+            app.BradleyNewellLabel.FontWeight = 'bold';
+            app.BradleyNewellLabel.Position = [16 9 91 29];
+            app.BradleyNewellLabel.Text = 'Bradley Newell';
+
+            % Create SystemValuesPanel
+            app.SystemValuesPanel = uipanel(app.UIFigure);
+            app.SystemValuesPanel.Title = 'System Values';
+            app.SystemValuesPanel.BackgroundColor = [1 1 1];
+            app.SystemValuesPanel.Position = [256 24 714 370];
+
+            % Create L1CurrentALabel
+            app.L1CurrentALabel = uilabel(app.SystemValuesPanel);
+            app.L1CurrentALabel.HorizontalAlignment = 'right';
+            app.L1CurrentALabel.Position = [31 309 82 22];
+            app.L1CurrentALabel.Text = 'L1 Current (A)';
+
+            % Create L1CurrentAEditField
+            app.L1CurrentAEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.L1CurrentAEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.L1CurrentAEditField.Position = [128 309 100 22];
+
+            % Create L2CurrentAEditFieldLabel
+            app.L2CurrentAEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.L2CurrentAEditFieldLabel.HorizontalAlignment = 'right';
+            app.L2CurrentAEditFieldLabel.Position = [31 271 82 22];
+            app.L2CurrentAEditFieldLabel.Text = 'L2 Current (A)';
+
+            % Create L2CurrentAEditField
+            app.L2CurrentAEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.L2CurrentAEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.L2CurrentAEditField.Position = [128 271 100 22];
+
+            % Create L3CurrentAEditFieldLabel
+            app.L3CurrentAEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.L3CurrentAEditFieldLabel.HorizontalAlignment = 'right';
+            app.L3CurrentAEditFieldLabel.Position = [31 232 82 22];
+            app.L3CurrentAEditFieldLabel.Text = 'L3 Current (A)';
+
+            % Create L3CurrentAEditField
+            app.L3CurrentAEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.L3CurrentAEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.L3CurrentAEditField.Position = [128 232 100 22];
+
+            % Create PPVoltageL12VEditFieldLabel
+            app.PPVoltageL12VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PPVoltageL12VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PPVoltageL12VEditFieldLabel.Position = [-3 197 116 22];
+            app.PPVoltageL12VEditFieldLabel.Text = 'P-P Voltage L1-2 (V)';
+
+            % Create PPVoltageL12VEditField
+            app.PPVoltageL12VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PPVoltageL12VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PPVoltageL12VEditField.Position = [128 197 100 22];
+
+            % Create PPVoltageL13VEditFieldLabel
+            app.PPVoltageL13VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PPVoltageL13VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PPVoltageL13VEditFieldLabel.Position = [-2 121 116 22];
+            app.PPVoltageL13VEditFieldLabel.Text = 'P-P Voltage L1-3 (V)';
+
+            % Create PPVoltageL13VEditField
+            app.PPVoltageL13VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PPVoltageL13VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PPVoltageL13VEditField.Position = [128 121 100 22];
+
+            % Create PPVoltageL23VEditFieldLabel
+            app.PPVoltageL23VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PPVoltageL23VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PPVoltageL23VEditFieldLabel.Position = [-2 155 116 22];
+            app.PPVoltageL23VEditFieldLabel.Text = 'P-P Voltage L2-3 (V)';
+
+            % Create PPVoltageL23VEditField
+            app.PPVoltageL23VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PPVoltageL23VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PPVoltageL23VEditField.Position = [128 155 100 22];
+
+            % Create PNVoltageL2VEditFieldLabel
+            app.PNVoltageL2VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PNVoltageL2VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PNVoltageL2VEditFieldLabel.Position = [9 49 106 22];
+            app.PNVoltageL2VEditFieldLabel.Text = 'P-N Voltage L2 (V)';
+
+            % Create PNVoltageL2VEditField
+            app.PNVoltageL2VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PNVoltageL2VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PNVoltageL2VEditField.Position = [128 49 100 22];
+
+            % Create PNVoltageL1VEditFieldLabel
+            app.PNVoltageL1VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PNVoltageL1VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PNVoltageL1VEditFieldLabel.Position = [9 85 106 22];
+            app.PNVoltageL1VEditFieldLabel.Text = 'P-N Voltage L1 (V)';
+
+            % Create PNVoltageL1VEditField
+            app.PNVoltageL1VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PNVoltageL1VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PNVoltageL1VEditField.Position = [128 85 100 22];
+
+            % Create PNVoltageL3VEditFieldLabel
+            app.PNVoltageL3VEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PNVoltageL3VEditFieldLabel.HorizontalAlignment = 'right';
+            app.PNVoltageL3VEditFieldLabel.Position = [9 13 106 22];
+            app.PNVoltageL3VEditFieldLabel.Text = 'P-N Voltage L3 (V)';
+
+            % Create PNVoltageL3VEditField
+            app.PNVoltageL3VEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PNVoltageL3VEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PNVoltageL3VEditField.Position = [128 13 100 22];
+
+            % Create FrequencyHzEditFieldLabel
+            app.FrequencyHzEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.FrequencyHzEditFieldLabel.HorizontalAlignment = 'right';
+            app.FrequencyHzEditFieldLabel.Position = [267 309 88 22];
+            app.FrequencyHzEditFieldLabel.Text = 'Frequency (Hz)';
+
+            % Create FrequencyHzEditField
+            app.FrequencyHzEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.FrequencyHzEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.FrequencyHzEditField.Position = [370 309 100 22];
+
+            % Create ActivePowerKwEditFieldLabel
+            app.ActivePowerKwEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.ActivePowerKwEditFieldLabel.HorizontalAlignment = 'right';
+            app.ActivePowerKwEditFieldLabel.Position = [251 271 104 22];
+            app.ActivePowerKwEditFieldLabel.Text = 'Active Power (Kw)';
+
+            % Create ActivePowerKwEditField
+            app.ActivePowerKwEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.ActivePowerKwEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.ActivePowerKwEditField.Position = [370 271 100 22];
+
+            % Create ReactivePowerKvarEditFieldLabel
+            app.ReactivePowerKvarEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.ReactivePowerKvarEditFieldLabel.HorizontalAlignment = 'right';
+            app.ReactivePowerKvarEditFieldLabel.Position = [229 232 126 22];
+            app.ReactivePowerKvarEditFieldLabel.Text = 'Reactive Power (Kvar)';
+
+            % Create ReactivePowerKvarEditField
+            app.ReactivePowerKvarEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.ReactivePowerKvarEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.ReactivePowerKvarEditField.Position = [370 232 100 22];
+
+            % Create ApparentPowerKvAEditFieldLabel
+            app.ApparentPowerKvAEditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.ApparentPowerKvAEditFieldLabel.HorizontalAlignment = 'right';
+            app.ApparentPowerKvAEditFieldLabel.Position = [230 197 125 22];
+            app.ApparentPowerKvAEditFieldLabel.Text = 'Apparent Power (KvA)';
+
+            % Create ApparentPowerKvAEditField
+            app.ApparentPowerKvAEditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.ApparentPowerKvAEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.ApparentPowerKvAEditField.Position = [370 197 100 22];
+
+            % Create PowerFactorL1EditFieldLabel
+            app.PowerFactorL1EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PowerFactorL1EditFieldLabel.HorizontalAlignment = 'right';
+            app.PowerFactorL1EditFieldLabel.Position = [261 155 94 22];
+            app.PowerFactorL1EditFieldLabel.Text = 'Power Factor L1';
+
+            % Create PowerFactorL1EditField
+            app.PowerFactorL1EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PowerFactorL1EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PowerFactorL1EditField.Position = [370 155 100 22];
+
+            % Create PowerFactorL2EditFieldLabel
+            app.PowerFactorL2EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PowerFactorL2EditFieldLabel.HorizontalAlignment = 'right';
+            app.PowerFactorL2EditFieldLabel.Position = [261 121 94 22];
+            app.PowerFactorL2EditFieldLabel.Text = 'Power Factor L2';
+
+            % Create PowerFactorL2EditField
+            app.PowerFactorL2EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PowerFactorL2EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PowerFactorL2EditField.Position = [370 121 100 22];
+
+            % Create PowerFactorL3EditFieldLabel
+            app.PowerFactorL3EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.PowerFactorL3EditFieldLabel.HorizontalAlignment = 'right';
+            app.PowerFactorL3EditFieldLabel.Position = [261 85 94 22];
+            app.PowerFactorL3EditFieldLabel.Text = 'Power Factor L3';
+
+            % Create PowerFactorL3EditField
+            app.PowerFactorL3EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.PowerFactorL3EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.PowerFactorL3EditField.Position = [370 85 100 22];
+
+            % Create CurrentTHDL1EditFieldLabel
+            app.CurrentTHDL1EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.CurrentTHDL1EditFieldLabel.HorizontalAlignment = 'right';
+            app.CurrentTHDL1EditFieldLabel.Position = [243 49 112 22];
+            app.CurrentTHDL1EditFieldLabel.Text = 'Current THD L1 (%)';
+
+            % Create CurrentTHDL1EditField
+            app.CurrentTHDL1EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.CurrentTHDL1EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.CurrentTHDL1EditField.Position = [370 49 100 22];
+
+            % Create CurrentTHDL2EditFieldLabel
+            app.CurrentTHDL2EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.CurrentTHDL2EditFieldLabel.HorizontalAlignment = 'right';
+            app.CurrentTHDL2EditFieldLabel.Position = [243 13 112 22];
+            app.CurrentTHDL2EditFieldLabel.Text = 'Current THD L2 (%)';
+
+            % Create CurrentTHDL2EditField
+            app.CurrentTHDL2EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.CurrentTHDL2EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.CurrentTHDL2EditField.Position = [370 13 100 22];
+
+            % Create CurrentTHDL3EditFieldLabel
+            app.CurrentTHDL3EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.CurrentTHDL3EditFieldLabel.HorizontalAlignment = 'right';
+            app.CurrentTHDL3EditFieldLabel.Position = [479 309 112 22];
+            app.CurrentTHDL3EditFieldLabel.Text = 'Current THD L3 (%)';
+
+            % Create CurrentTHDL3EditField
+            app.CurrentTHDL3EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.CurrentTHDL3EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.CurrentTHDL3EditField.Position = [605 309 100 22];
+
+            % Create VoltageTHDL1EditFieldLabel
+            app.VoltageTHDL1EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.VoltageTHDL1EditFieldLabel.HorizontalAlignment = 'right';
+            app.VoltageTHDL1EditFieldLabel.Position = [479 271 112 22];
+            app.VoltageTHDL1EditFieldLabel.Text = 'Voltage THD L1 (%)';
+
+            % Create VoltageTHDL1EditField
+            app.VoltageTHDL1EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.VoltageTHDL1EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.VoltageTHDL1EditField.Position = [605 271 100 22];
+
+            % Create VoltageTHDL2EditFieldLabel
+            app.VoltageTHDL2EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.VoltageTHDL2EditFieldLabel.HorizontalAlignment = 'right';
+            app.VoltageTHDL2EditFieldLabel.Position = [479 232 112 22];
+            app.VoltageTHDL2EditFieldLabel.Text = 'Voltage THD L2 (%)';
+
+            % Create VoltageTHDL2EditField
+            app.VoltageTHDL2EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.VoltageTHDL2EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.VoltageTHDL2EditField.Position = [605 232 100 22];
+
+            % Create VoltageTHDL3EditFieldLabel
+            app.VoltageTHDL3EditFieldLabel = uilabel(app.SystemValuesPanel);
+            app.VoltageTHDL3EditFieldLabel.HorizontalAlignment = 'right';
+            app.VoltageTHDL3EditFieldLabel.Position = [479 197 112 22];
+            app.VoltageTHDL3EditFieldLabel.Text = 'Voltage THD L3 (%)';
+
+            % Create VoltageTHDL3EditField
+            app.VoltageTHDL3EditField = uieditfield(app.SystemValuesPanel, 'numeric');
+            app.VoltageTHDL3EditField.BackgroundColor = [0.8 0.8 0.8];
+            app.VoltageTHDL3EditField.Position = [605 197 100 22];
+
+            % Create Image
+            app.Image = uiimage(app.SystemValuesPanel);
+            app.Image.Position = [447 7 336 64];
+            app.Image.ImageSource = 'sellafield image.png';
+
+            % Create OperatorControlsPanel
+            app.OperatorControlsPanel = uipanel(app.UIFigure);
+            app.OperatorControlsPanel.Title = 'Operator Controls';
+            app.OperatorControlsPanel.BackgroundColor = [1 1 1];
+            app.OperatorControlsPanel.Position = [10 77 236 240];
+
+            % Create RunMeasermentButton
+            app.RunMeasermentButton = uibutton(app.OperatorControlsPanel, 'push');
+            app.RunMeasermentButton.ButtonPushedFcn = createCallbackFcn(app, @RunMeasermentButtonPushed, true);
+            app.RunMeasermentButton.BackgroundColor = [0.8 0.8 0.8];
+            app.RunMeasermentButton.Position = [10 50 108 22];
+            app.RunMeasermentButton.Text = 'Run Measerment';
+
+            % Create MeasurmentNameEditFieldLabel
+            app.MeasurmentNameEditFieldLabel = uilabel(app.OperatorControlsPanel);
+            app.MeasurmentNameEditFieldLabel.HorizontalAlignment = 'right';
+            app.MeasurmentNameEditFieldLabel.Position = [10 188 108 22];
+            app.MeasurmentNameEditFieldLabel.Text = 'Measurment Name';
+
+            % Create MeasurmentNameEditField
+            app.MeasurmentNameEditField = uieditfield(app.OperatorControlsPanel, 'text');
+            app.MeasurmentNameEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.MeasurmentNameEditField.Position = [133 188 100 22];
+
+            % Create NumberofRecordsEditFieldLabel
+            app.NumberofRecordsEditFieldLabel = uilabel(app.OperatorControlsPanel);
+            app.NumberofRecordsEditFieldLabel.HorizontalAlignment = 'right';
+            app.NumberofRecordsEditFieldLabel.Position = [8 142 110 22];
+            app.NumberofRecordsEditFieldLabel.Text = 'Number of Records';
+
+            % Create NumberofRecordsEditField
+            app.NumberofRecordsEditField = uieditfield(app.OperatorControlsPanel, 'numeric');
+            app.NumberofRecordsEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.NumberofRecordsEditField.Position = [133 142 100 22];
+
+            % Create MeasurmentCountEditFieldLabel
+            app.MeasurmentCountEditFieldLabel = uilabel(app.OperatorControlsPanel);
+            app.MeasurmentCountEditFieldLabel.HorizontalAlignment = 'right';
+            app.MeasurmentCountEditFieldLabel.Position = [10 15 108 22];
+            app.MeasurmentCountEditFieldLabel.Text = 'Measurment Count';
+
+            % Create MeasurmentCountEditField
+            app.MeasurmentCountEditField = uieditfield(app.OperatorControlsPanel, 'numeric');
+            app.MeasurmentCountEditField.BackgroundColor = [0.8 0.8 0.8];
+            app.MeasurmentCountEditField.Position = [133 15 100 22];
+
+            % Create DistanceLabel
+            app.DistanceLabel = uilabel(app.OperatorControlsPanel);
+            app.DistanceLabel.HorizontalAlignment = 'right';
+            app.DistanceLabel.Position = [66 93 52 22];
+            app.DistanceLabel.Text = 'Distance';
+
+            % Create distance
+            app.distance = uieditfield(app.OperatorControlsPanel, 'numeric');
+            app.distance.BackgroundColor = [0.8 0.8 0.8];
+            app.distance.Position = [133 93 100 22];
+
+            % Show the figure after all components are created
+            app.UIFigure.Visible = 'on';
+        end
+    end
+
+    % App creation and deletion
+    methods (Access = public)
+
+        % Construct app
+        function app = Measurementsystem2
+
+            % Create UIFigure and components
+            createComponents(app)
+
+            % Register the app with App Designer
+            registerApp(app, app.UIFigure)
+
+            if nargout == 0
+                clear app
+            end
+        end
+
+        % Code that executes before app deletion
+        function delete(app)
+
+            % Delete UIFigure when app is deleted
+            delete(app.UIFigure)
+        end
+    end
