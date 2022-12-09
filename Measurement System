@@ -109,7 +109,7 @@ tic
 %y being the count variable begins at 0
 y=0;
 
-%While loop so code will take readings for the alloted count value from
+%While loop so code will take readings for the allocated count value from
 %edit field box
 while y<app.NumberofRecordsEditField.Value
     %Start Count
